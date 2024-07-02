@@ -26,6 +26,27 @@ public class CardGameTest {
         cardGame = new CardGame(numberOfPlayers);
     }
     @Test
+    public void testCreateGame() {
+        CardGame cardGame = new CardGame(numberOfPlayers);
+        //Check the number of players
+        Player[] players = cardGame.getPlayerArrayList();
+        assertEquals(numberOfPlayers, players.length, "Number of players should be " + numberOfPlayers);
+        CardDeck[] decks = cardGame.getCardDeckArrayList();
+        assertEquals(numberOfPlayers, decks.length, "Number of decks should be " + numberOfPlayers);
+
+        // Ensure each player is initialized correctly
+        for (int i = 0; i < numberOfPlayers; i++) {
+            assertNotNull(players[i], "Player " + (i + 1) + " should be initialized");
+            assertEquals(i + 1, players[i].getPlayerID(), "Player ID should be " + (i + 1));
+        }
+
+        // Ensure each deck is initialized correctly
+        for (int i = 0; i < numberOfPlayers; i++) {
+            assertNotNull(decks[i], "Deck " + (i + 1) + " should be initialized");
+            assertEquals(i + 1, decks[i].getDeckID(), "Deck ID should be " + (i + 1));
+        }
+    }
+    @Test
     public void testDistributeCards() {
         ArrayList<Integer> faceValues = new ArrayList<>();
 
