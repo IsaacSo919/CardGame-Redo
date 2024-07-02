@@ -5,14 +5,15 @@ public class CardGame {
     private final int numberOfPlayers;
     private final List<Player> playerArrayList;
     private final List<CardDeck> cardDeckArrayList;
+    private final List<Thread> playerThreads = new LinkedList<>();
 
     public CardGame(int numberOfPlayers) {
         this.numberOfPlayers = numberOfPlayers;
         this.playerArrayList = new LinkedList<>();
         this.cardDeckArrayList = new LinkedList<>();
-        for (int i = 1; i <= numberOfPlayers; i++) {
-            playerArrayList.add(new Player(i));
-            cardDeckArrayList.add(new CardDeck(i));
+        for (int i = 0; i < numberOfPlayers; i++) {
+            playerArrayList.add(new Player(i+1, this));
+            cardDeckArrayList.add(new CardDeck(i+1));
         }
     }
 
@@ -39,8 +40,15 @@ public class CardGame {
         cardGame.startGame();
     }
     private void startGame() {
-        for(Player player : this.playerArrayList){
-            player.start();
+        for(Player player : playerArrayList){
+            Thread playerThread = new Thread(player);
+            playerThreads.add(playerThread);
+            playerThread.start();
+        }
+    }
+    public void stopGame() {
+        for (Thread playerThread : playerThreads) {
+            playerThread.interrupt();
         }
     }
     public void distributeCards(ArrayList<Integer> faceValues) {
@@ -60,16 +68,18 @@ public class CardGame {
 
         //----------------------Print out the hands and decks (intialize))----------------------
         for (Player player : playerArrayList) {
-            System.out.println("player " + player.getPlayerID() + " has hand: ");
+            System.out.print("player " + player.getPlayerID() + " has hand: ");
             for (Card card : player.getHand()) {
-                System.out.println(card.getFaceValue() + " ");
+                System.out.print(card.getFaceValue() + " ");
             }
+            System.out.print("\n");
         }
         for (CardDeck cardDeck : cardDeckArrayList) {
-            System.out.println("Deck " + cardDeck.getDeckID() + " has deck: ");
+            System.out.print("Deck " + cardDeck.getDeckID() + " has deck: ");
             for (Card card : cardDeck.getCardDeck()) {
-                System.out.println(card.getFaceValue() + " ");
+                System.out.print(card.getFaceValue() + " ");
             }
+            System.out.print("\n");
         }
 
     }
@@ -144,5 +154,8 @@ public class CardGame {
 
     public CardDeck[] getCardDeckArrayList() {
         return cardDeckArrayList.toArray(new CardDeck[0]);
+    }
+    public CardDeck getDeck(int deckID) {
+        return cardDeckArrayList.get(deckID % numberOfPlayers); //this prevents the out of bound exception,the last deck will be the same as the first deck
     }
 }
