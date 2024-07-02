@@ -1,18 +1,15 @@
 import java.io.*;
-import java.util.ArrayList;
-import java.util.Scanner;
-
-import java.util.Collections;
+import java.util.*;
 
 public class CardGame {
     private final int numberOfPlayers;
-    private final ArrayList<Player> playerArrayList;
-    private final ArrayList<CardDeck> cardDeckArrayList;
+    private final List<Player> playerArrayList;
+    private final List<CardDeck> cardDeckArrayList;
 
     public CardGame(int numberOfPlayers) {
         this.numberOfPlayers = numberOfPlayers;
-        this.playerArrayList = new ArrayList<>();
-        this.cardDeckArrayList = new ArrayList<>();
+        this.playerArrayList = new LinkedList<>();
+        this.cardDeckArrayList = new LinkedList<>();
         for (int i = 1; i <= numberOfPlayers; i++) {
             playerArrayList.add(new Player(i));
             cardDeckArrayList.add(new CardDeck(i));
@@ -21,22 +18,17 @@ public class CardGame {
 
     public static void main(String[] args) {
         System.out.println("Welcome to the Card Game!\n");
-        int numberOfPlayers = getNumberOfPlayers();
+        int numberOfPlayers = scanNumberOfPlayers();
         CardGame cardGame = new CardGame(numberOfPlayers);
 
         ArrayList<Card> cardsValues = new ArrayList<>();
         for (int i = 1; i <= numberOfPlayers; i++) {
-            for (int j = 1; j <= 4; j++) {// 1-4 are the face values
+            for (int j = 1; j <= 8; j++) {// 1-4 are the face values
                 cardsValues.add(new Card(i));// i will be the face value, j*i is the CardID
             }
         }
         System.out.println("Cards created!");
-
-        System.out.println("Before shuffling: ");
-        printAllCards(cardsValues);
-
         Collections.shuffle(cardsValues);
-
         // Print and write cards after shuffling
         writeCards(cardsValues, "cards.txt");
 
@@ -47,12 +39,11 @@ public class CardGame {
         // Set up the table
         System.out.println("Start creating player, discrete decks and give them hands");
         cardGame.distributeCards(tempCards);
-        System.out.println(cardGame.playerArrayList);
 
 
     }
 
-    public static int getNumberOfPlayers() {
+    public static int scanNumberOfPlayers() {
         int numberOfPlayers = 0;
         //Create a scanner object to read user input
         Scanner scanner = new Scanner(System.in);
@@ -73,6 +64,10 @@ public class CardGame {
                 scanner.next();
             }
         }
+        return numberOfPlayers;
+    }
+
+    public int getNumberOfPlayers() {
         return numberOfPlayers;
     }
 
@@ -109,21 +104,36 @@ public class CardGame {
     }
 
     public void distributeCards(ArrayList<Integer> faceValues) {
-        boolean deckvsPlayerFlag = true;
-        int i = 0;
-        for (Integer facevalue : faceValues) {
-            if (deckvsPlayerFlag) {
-                Card tempCard1 = new Card(facevalue);
-                this.playerArrayList.get(i % this.playerArrayList.size()).addHand(tempCard1);
-                i++;
-                deckvsPlayerFlag = false;
-            } else {
-                Card tempCard2 = new Card(facevalue);
-                this.cardDeckArrayList.get(i % playerArrayList.size()).addCard(tempCard2);
-                i++;
+        Collections.shuffle(faceValues);
+        int faceValueCardCount = 0;
+        for (int roundCount = 0; roundCount < 4; roundCount++) { // nested for loop 4 rounds
+            for (int i = 0; i < numberOfPlayers; i++) {//nested for loop for each player(and decks)
+                playerArrayList.get(i).addHand(new Card(faceValues.get(faceValueCardCount)));
+                faceValueCardCount++;
+                cardDeckArrayList.get(i).addDeck(new Card(faceValues.get(faceValueCardCount)));
+                faceValueCardCount++;
             }
         }
+            System.out.println("Finish distributing cards");// print out the hands and decks
+            for (Player player : playerArrayList) {
+                System.out.println("player " + player.getPlayerID() + " has hand: ");
+                for (Card card : player.getHand()) {
+                    System.out.println(card.getFaceValue() + " ");
+                }
+            }
+            for (CardDeck cardDeck : cardDeckArrayList) {
+                System.out.println("Deck " + cardDeck.getDeckID() + " has deck: ");
+                for (Card card : cardDeck.getCardDeck()) {
+                    System.out.println(card.getFaceValue() + " ");
+                }
+            }
     }
 
+    public Player[] getPlayerArrayList() {
+        return playerArrayList.toArray(new Player[0]);
+    }
 
+    public CardDeck[] getCardDeckArrayList() {
+        return cardDeckArrayList.toArray(new CardDeck[0]);
+    }
 }

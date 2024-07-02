@@ -4,12 +4,19 @@ import java.util.List;
 
 public class CardDeck {
     private int deckID;
-    private final List<Card> cards;
+    private final List<Card> cardDeck;
     public CardDeck(int deckID){
         this.deckID = deckID;
-        this.cards = new LinkedList<>();
+        this.cardDeck = new LinkedList<>();
     }
-    public void addCard(Card card){
-        cards.add(card);
+    public void addDeck(Card card){
+        cardDeck.add(card);
+    }
+    public List<Card> getCardDeck(){
+        return cardDeck;
+    }
+
+    public int getDeckID() {
+        return deckID;
     }
 }

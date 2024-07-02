@@ -15,5 +15,11 @@ public class Player extends Thread {
         hand.add(card);
     }
 
+    public List<Card> getHand(){
+        return hand;
+    }
 
+    public int getPlayerID() {
+        return playerID;
+    }
 }
