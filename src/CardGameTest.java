@@ -22,7 +22,7 @@ public class CardGameTest {
     private int numberOfPlayers;
     @Before
     public void setUp() {
-        int numberOfPlayers = 4;
+        numberOfPlayers = 4;
         cardGame = new CardGame(numberOfPlayers);
     }
     @Test

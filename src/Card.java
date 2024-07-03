@@ -1,6 +1,6 @@
 public class Card {
-    private int faceValue;
-    public Card(int faceValue) {// i is the face value, j is the CardID
+    private final int faceValue;
+    public Card(int faceValue) {// i will be the face value, j is the CardID
         this.faceValue = faceValue;
     }
 

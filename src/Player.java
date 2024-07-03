@@ -17,13 +17,16 @@ public class Player implements Runnable {
     }
     @Override
     public void run() {
+        try {
         while (!Thread.currentThread().isInterrupted()) {
-            if (checkWin()) { // check before the player draws a card
-                System.out.println("Player " + playerID + " wins!");
-                cardGame.stopGame();
-                break;
+            synchronized (cardGame) {
+                if (cardGame.isGameWon()) {
+                    System.out.println("Player " + playerID + " wins!");
+                    break;
+                }
             }
-            try {
+
+
                 CardDeck previousDeck = cardGame.getDeck(playerID - 1);
                 CardDeck nextDeck = cardGame.getDeck(playerID);
 
@@ -57,20 +60,20 @@ public class Player implements Runnable {
                 if (checkWin()) {
                     System.out.println("Player " + playerID + " wins!");
                     // Print the player's hand
-                    System.out.println("player 1 current hand is "+ this.printHand());
+                    System.out.println("player "+playerID+" current hand is "+ this.printHand());
                     cardGame.stopGame();
                     break;
                 }
 
                 Thread.sleep(1000); // Simulate time taken to play
-
+            }
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt(); // Restore interrupted status
-                break;
+                System.out.println("Player " + playerID + " was interrupted.");
             }
 
         }
-    }
+
 
     public boolean checkWin() {
 //        this.setHandtoSame();

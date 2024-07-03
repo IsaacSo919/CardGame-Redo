@@ -6,6 +6,7 @@ public class CardGame {
     private final List<Player> playerArrayList;
     private final List<CardDeck> cardDeckArrayList;
     private final List<Thread> playerThreads = new LinkedList<>();
+    private boolean gameWon = false;
 
     public CardGame(int numberOfPlayers) {
         this.numberOfPlayers = numberOfPlayers;
@@ -39,6 +40,14 @@ public class CardGame {
         cardGame.distributeCards(tempCards);
         cardGame.startGame();
     }
+    public synchronized boolean isGameWon() {
+        return gameWon;
+    }
+    public synchronized void setGameWon() {
+        gameWon = true;
+        notifyAll(); // Notify all waiting threads that the game has been won
+    }
+
     private void startGame() {
         for(Player player : playerArrayList){
             Thread playerThread = new Thread(player);
