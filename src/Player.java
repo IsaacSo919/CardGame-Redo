@@ -26,20 +26,25 @@ public class Player implements Runnable {
         }
 
     }
+
     @Override
     public void run() {
         try {
             writer.println("Player " + playerID + " initial hand is " + this.printHand());
-        while (!Thread.currentThread().isInterrupted()) {
-            synchronized (cardGame) {// synchronized block ensures that only one thread can execute at a time
-                if (cardGame.isGameWon()) { //returns true if the game is won
-                    break;
+            while (!Thread.currentThread().isInterrupted()) {
+                synchronized (cardGame) {// synchronized block ensures that only one thread can execute at a time
+                    if (cardGame.isGameWon()) { //returns true if the game is won
+                        System.out.println("Winners id: "+cardGame.getWinnerID());
+                        System.out.println("This players id: "+this.getPlayerID());
+                        if (cardGame.getWinnerID() != this.getPlayerID()) {
+                            writer.println("player " + cardGame.getWinnerID()+ " has informed player " + this.playerID + " that player " + cardGame.getWinnerID() + " has won\n" +
+                                    "player " + this.playerID+ " exits\n" +
+                                    "player " + this.playerID + " hand: " + this.printHand());
+                        }
+                        writer.flush();
+                        break;
+                    }
                 }
-                // Check for win condition
-
-            }
-
-
                 CardDeck previousDeck = cardGame.getDeck(playerID - 1);
                 CardDeck nextDeck = cardGame.getDeck(playerID);
 
@@ -61,39 +66,38 @@ public class Player implements Runnable {
                 if (cardToDiscard != null) {
                     hand.remove(cardToDiscard);
                     nextDeck.discardCard(cardToDiscard);
-                    writer.println("Player " + playerID + "  discards a " + cardToDiscard.getFaceValue()+" to deck " + nextDeck.getDeckID());
+                    writer.println("Player " + playerID + "  discards a " + cardToDiscard.getFaceValue() + " to deck " + nextDeck.getDeckID());
                 } else {
                     // If no non-preferred card is found, discard any card
                     cardToDiscard = hand.remove(0);// remove the first card
                     nextDeck.discardCard(cardToDiscard);
-                    writer.println("Player " + playerID + " discards a " + cardToDiscard.getFaceValue()+" to deck " + nextDeck.getDeckID());
+                    writer.println("Player " + playerID + " discards a " + cardToDiscard.getFaceValue() + " to deck " + nextDeck.getDeckID());
                 }
-            if (checkWin()) {
-                // Print the player's hand
-                System.out.println("Player " + playerID + " wins");
-                System.out.println("player "+playerID+" final hand: "+ this.printHand());
-                // Print the player's hand to the file
-                writer.println("Player " + playerID + " wins");
-                writer.println("Player " + playerID + " exits");
-                writer.println("player " + playerID + " final hand: " + this.printHand());
-                synchronized (cardGame) {
-                    cardGame.setGameWon();
+                writer.println("Player " + playerID + " current hand is " + this.printHand());
+                if (checkWin()) { // Check for win condition and perform necessary actions if true
+                    // Print the player's hand
+                    System.out.println("Player " + playerID + " wins");
+                    System.out.println("player " + playerID + " final hand: " + this.printHand());
+                    writer.println("Player " + playerID + " wins");
+                    writer.println("Player " + playerID + " exits");
+                    writer.println("player " + playerID + " final hand: " + this.printHand());
+                    writer.flush();
+                    synchronized (cardGame) {
+                        cardGame.setGameWon(this.playerID); // Set the gameWon flag to true
+                    }
+                    break;
                 }
-                cardGame.stopGame();
+
                 writer.flush();
-                break;
+                Thread.sleep(1000); // Simulate time taken to play
             }
-            writer.println("Player " + playerID + " current hand is " + this.printHand());
-            writer.flush();
-            Thread.sleep(1000); // Simulate time taken to play
-        }
-            } catch (InterruptedException e) {
-                Thread.currentThread().interrupt(); // Restore interrupted status
-            }finally {
-                writer.close();
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt(); // Restore interrupted status
+        } finally {
+            writer.close();
         }
 
-        }
+    }
 
 
 

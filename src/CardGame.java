@@ -7,6 +7,7 @@ public class CardGame {
     private final List<CardDeck> cardDeckArrayList;
     private final List<Thread> playerThreads = new LinkedList<>();
     private boolean gameWon = false;
+    private int winnerID;
 
     public CardGame(int numberOfPlayers) {
         this.numberOfPlayers = numberOfPlayers;
@@ -40,11 +41,16 @@ public class CardGame {
         cardGame.distributeCards(tempCards);
         cardGame.startGame();
     }
+    public synchronized int getWinnerID() {
+        return winnerID;
+    }
     public synchronized boolean isGameWon() {
         return gameWon;
     }
-    public synchronized void setGameWon() { // being called in
-        gameWon = true;
+    public synchronized void setGameWon(int playerID) { // being called in if(checkWin()) in Player.java
+        this.gameWon = true;
+        this.winnerID = playerID;
+//       System.out.println("Player " + winnerID + " wins, from setGameWon method,CardGame class");
         notifyAll(); // Notify all waiting threads that the game has been won
     }
     private void deletePreviousFiles() {
