@@ -50,7 +50,7 @@ public class CardGame {
     public synchronized void setGameWon(int playerID) { // being called in if(checkWin()) in Player.java
         this.gameWon = true;
         this.winnerID = playerID;
-//       System.out.println("Player " + winnerID + " wins, from setGameWon method,CardGame class");
+        System.out.println("--------------------\n Player " + winnerID + " wins, from setGameWon method,CardGame class");
         notifyAll(); // Notify all waiting threads that the game has been won
     }
     private void deletePreviousFiles() {

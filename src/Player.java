@@ -34,7 +34,11 @@ public class Player implements Runnable {
             while (!Thread.currentThread().isInterrupted()) {
                 synchronized (cardGame) {// synchronized block ensures that only one thread can execute at a time
                     if (cardGame.isGameWon()) { //returns true if the game is won
-                        if (cardGame.getWinnerID() != this.getPlayerID()) {
+                        if(cardGame.getWinnerID()==this.playerID){
+                            writer.println("Player " + playerID + " wins");
+                            writer.println("Player " + playerID + " exits");
+                            writer.println("player " + playerID + " final hand: " + this.printHand());
+                        }else{
                             writer.println("player " + cardGame.getWinnerID()+ " has informed player " + this.playerID + " that player " + cardGame.getWinnerID() + " has won\n" +
                                     "player " + this.playerID+ " exits\n" +
                                     "player " + this.playerID + " hand: " + this.printHand());
@@ -77,15 +81,11 @@ public class Player implements Runnable {
                     // Print the player's hand
                     System.out.println("Player " + playerID + " wins");
                     System.out.println("player " + playerID + " final hand: " + this.printHand());
-                    writer.println("Player " + playerID + " wins");
-                    writer.println("Player " + playerID + " exits");
-                    writer.println("player " + playerID + " final hand: " + this.printHand());
-                    writer.flush();
-                    synchronized (cardGame) {
-                        cardGame.setGameWon(this.playerID); // Set the gameWon flag to true
+                    synchronized(cardGame){
+                        cardGame.setGameWon(this.playerID);
                     }
-                    Thread.currentThread().interrupt();
-                    break;
+                     // Set the gameWon flag to true
+                    //break;// im an idiot, if i break here the thread will end, so only the winner will not run anymore
                 }
 
                 writer.flush();
