@@ -23,7 +23,19 @@ public class CardGame {
         System.out.println("Welcome to the Card Game!\n");
         int numberOfPlayers = scanNumberOfPlayers();
         CardGame cardGame = new CardGame(numberOfPlayers);
+        //Card Pack generator
+        //createCardPack(numberOfPlayers);
+        // Read userinput for cardPack file
+        ArrayList<Integer> tempCards = handleCardPackFile(numberOfPlayers);
+        // Set up the table
+        cardGame.distributeCards(tempCards);
+        cardGame.startGame();
+    }
 
+
+
+    private static void createCardPack(int numberOfPlayers) {
+        numberOfPlayers = 5;
         ArrayList<Card> cardsValues = new ArrayList<>();
         for (int i = 1; i <= numberOfPlayers; i++) {
             for (int j = 1; j <= 8; j++) {// 1-4 are the face values
@@ -31,16 +43,10 @@ public class CardGame {
             }
         }
         System.out.println("Cards created!");
-
-        writeCards(cardsValues, "cards.txt");
-
-        // Read cards from the file
-        ArrayList<Integer> tempCards = readCardsFromFile("cards.txt");
-
-        // Set up the table
-        cardGame.distributeCards(tempCards);
-        cardGame.startGame();
+        Collections.shuffle(cardsValues);
+        writeCards(cardsValues, "five.txt");
     }
+
     public synchronized int getWinnerID() {
         return winnerID;
     }
@@ -120,7 +126,6 @@ public class CardGame {
         } catch (IOException | NumberFormatException e) {
             System.err.println("Error reading from file: " + e.getMessage());
         }
-        System.out.println("Finish reading cards from file");
         return cardValues;
     }
     public static void writeCards(ArrayList<Card> cards, String fileName) {
@@ -158,7 +163,35 @@ public class CardGame {
         return numberOfPlayers;
     }
 
+    public static ArrayList<Integer> handleCardPackFile(int numberOfPlayers) {
+        boolean validInput = false;
+        //Create a scanner object to read user input
+        //Prompt the user to enter the number of players
+        while (!validInput) {
+            System.out.println("Please enter location of the pack to load:");
+            Scanner scanner = new Scanner(System.in);
+            String fileName = scanner.nextLine();
+            if (checkFileExist(fileName)) {
+                if (readCardsFromFile(fileName).size() == numberOfPlayers * 8) {
+                    System.out.println("Finish reading cards from file");
+                    return (readCardsFromFile(fileName));
+                } else {
+                    System.out.println("Invalid input. Please enter a file with " + numberOfPlayers * 8 + " cards.");
+                }
+            }
 
+        }
+        return null;
+    }
+    public static boolean checkFileExist(String fileName){
+        File file = new File(fileName);
+        if (file.exists()) {
+            return true;
+        } else {
+            System.out.println("File does not exist. Please enter a valid file name.");
+            return false;
+        }
+    }
 
 
 
@@ -167,7 +200,7 @@ public class CardGame {
 //-------------------------------testing-------------------------------
     public int getNumberOfPlayers() {
     return numberOfPlayers;
-}
+    }
     public static void printAllCards(ArrayList<Card> cards) {
         for (Card card : cards) {
             System.out.println(card.getFaceValue());

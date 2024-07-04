@@ -12,12 +12,13 @@ public class Player implements Runnable {
     private final int preferredDenomination;
     private PrintWriter writer;
 //    private volatile boolean done = false; //The volatile keyword in Java is used to indicate that a variable's value will be modified by different threads.
-
+    private boolean firstTime;
     public Player(int playerID, CardGame cardGame) {
         this.playerID = playerID;
         this.preferredDenomination = playerID;
         this.cardGame = cardGame;
         this.hand = new LinkedList<>();
+        this.firstTime = true;
 
         try {
             writer = new PrintWriter(new BufferedWriter(new FileWriter("player" + playerID + ".txt", false)));
@@ -30,16 +31,20 @@ public class Player implements Runnable {
     @Override
     public void run() {
         try {
-            writer.println("Player " + playerID + " initial hand is " + this.printHand());
-            if (checkWin()) {
-                // Check for win condition when the game starts,maybe the player already has 4 cards of the same face value
-                System.out.println("Player " + playerID + " wins");
-                System.out.println("player " + playerID + " final hand: " + this.printHand());
+            if (firstTime){
+                writer.println("Player " + playerID + " initial hand is " + this.printHand());
+                if (checkWin()) {
+                    // Check for win condition when the game starts,maybe the player already has 4 cards of the same face value
+                    System.out.println("Player " + playerID + " wins");
+                    System.out.println("player " + playerID + " final hand: " + this.printHand());
 
-                synchronized(cardGame){
-                    cardGame.setGameWon(this.playerID);// Set the gameWon flag to true
+                    synchronized(cardGame){
+                        cardGame.setGameWon(this.playerID);// Set the gameWon flag to true
+                    }
                 }
+                firstTime = false;
             }
+
             while (!Thread.currentThread().isInterrupted()) {
                 synchronized (cardGame) {// synchronized block ensures that only one thread can execute at a time
                     if (cardGame.isGameWon()) { //returns true if the game is won,right after the pogram notifies all the threads that the game is won
