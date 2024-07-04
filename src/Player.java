@@ -31,6 +31,15 @@ public class Player implements Runnable {
     public void run() {
         try {
             writer.println("Player " + playerID + " initial hand is " + this.printHand());
+            if (checkWin()) {
+                // Check for win condition when the game starts,maybe the player already has 4 cards of the same face value
+                System.out.println("Player " + playerID + " wins");
+                System.out.println("player " + playerID + " final hand: " + this.printHand());
+
+                synchronized(cardGame){
+                    cardGame.setGameWon(this.playerID);// Set the gameWon flag to true
+                }
+            }
             while (!Thread.currentThread().isInterrupted()) {
                 synchronized (cardGame) {// synchronized block ensures that only one thread can execute at a time
                     if (cardGame.isGameWon()) { //returns true if the game is won,right after the pogram notifies all the threads that the game is won
