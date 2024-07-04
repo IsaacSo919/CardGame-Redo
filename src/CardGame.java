@@ -43,12 +43,20 @@ public class CardGame {
     public synchronized boolean isGameWon() {
         return gameWon;
     }
-    public synchronized void setGameWon() {
+    public synchronized void setGameWon() { // being called in
         gameWon = true;
         notifyAll(); // Notify all waiting threads that the game has been won
     }
-
+    private void deletePreviousFiles() {
+        for (int i = 1; i <= 100; i++) {
+            File file = new File("player" + i + ".txt");
+            if (file.exists()) {
+                file.delete();
+            }
+        }
+    }
     private void startGame() {
+        deletePreviousFiles();
         for(Player player : playerArrayList){
             Thread playerThread = new Thread(player);
             playerThreads.add(playerThread);
