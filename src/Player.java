@@ -34,14 +34,13 @@ public class Player implements Runnable {
             while (!Thread.currentThread().isInterrupted()) {
                 synchronized (cardGame) {// synchronized block ensures that only one thread can execute at a time
                     if (cardGame.isGameWon()) { //returns true if the game is won
-                        System.out.println("Winners id: "+cardGame.getWinnerID());
-                        System.out.println("This players id: "+this.getPlayerID());
                         if (cardGame.getWinnerID() != this.getPlayerID()) {
                             writer.println("player " + cardGame.getWinnerID()+ " has informed player " + this.playerID + " that player " + cardGame.getWinnerID() + " has won\n" +
                                     "player " + this.playerID+ " exits\n" +
                                     "player " + this.playerID + " hand: " + this.printHand());
                         }
                         writer.flush();
+                        Thread.currentThread().interrupt();
                         break;
                     }
                 }
@@ -85,6 +84,7 @@ public class Player implements Runnable {
                     synchronized (cardGame) {
                         cardGame.setGameWon(this.playerID); // Set the gameWon flag to true
                     }
+                    Thread.currentThread().interrupt();
                     break;
                 }
 
