@@ -50,7 +50,8 @@ public class CardGame {
     public synchronized void setGameWon(int playerID) { // being called in if(checkWin()) in Player.java
         this.gameWon = true;
         this.winnerID = playerID;
-        System.out.println("--------------------\n Player " + winnerID + " wins, from setGameWon method,CardGame class");
+        System.out.println("---------------------\nPrint winner and other players message to txt file.\nStop the game.");
+
         notifyAll(); // Notify all waiting threads that the game has been won
     }
     private void deletePreviousFiles() {
@@ -62,6 +63,7 @@ public class CardGame {
         }
     }
     private void startGame() {
+        System.out.println("-------------------------------\nStart the game!");
         deletePreviousFiles();
         for(Player player : playerArrayList){
             Thread playerThread = new Thread(player);
@@ -70,6 +72,7 @@ public class CardGame {
         }
     }
     public void stopGame() {
+        System.out.println("Stop the game, interrupt all threads");
         for (Thread playerThread : playerThreads) {
             playerThread.interrupt();
         }

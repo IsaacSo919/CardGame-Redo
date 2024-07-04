@@ -33,7 +33,7 @@ public class Player implements Runnable {
             writer.println("Player " + playerID + " initial hand is " + this.printHand());
             while (!Thread.currentThread().isInterrupted()) {
                 synchronized (cardGame) {// synchronized block ensures that only one thread can execute at a time
-                    if (cardGame.isGameWon()) { //returns true if the game is won
+                    if (cardGame.isGameWon()) { //returns true if the game is won,right after the pogram notifies all the threads that the game is won
                         if(cardGame.getWinnerID()==this.playerID){
                             writer.println("Player " + playerID + " wins");
                             writer.println("Player " + playerID + " exits");
@@ -45,6 +45,7 @@ public class Player implements Runnable {
                         }
                         writer.flush();
                         Thread.currentThread().interrupt();
+//                        System.out.println("PlayerThread " + playerID + " is interrupted");
                         break;
                     }
                 }
@@ -81,6 +82,7 @@ public class Player implements Runnable {
                     // Print the player's hand
                     System.out.println("Player " + playerID + " wins");
                     System.out.println("player " + playerID + " final hand: " + this.printHand());
+
                     synchronized(cardGame){
                         cardGame.setGameWon(this.playerID);
                     }
