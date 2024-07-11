@@ -22,7 +22,7 @@ public class CardDeck {
     public void addDeck(Card card){
         cardDeck.add(card);
     }
-    public List<Card> getCardDeck(){
+    public synchronized List<Card> getCardDeck(){
         return cardDeck;
     }
 

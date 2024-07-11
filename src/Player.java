@@ -33,7 +33,7 @@ public class Player implements Runnable {
         try {
             if (firstTime){
                 writer.println("Player " + playerID + " initial hand is " + this.printHand());
-                if (checkWin()) {
+                if (checkInitialWin()) {
                     // Check for win condition when the game starts,maybe the player already has 4 cards of the same face value
                     System.out.println("Player " + playerID + " wins");
                     System.out.println("player " + playerID + " final hand: " + this.printHand());
@@ -115,6 +115,16 @@ public class Player implements Runnable {
 
     }
 
+    private boolean checkInitialWin() {
+        int previousValue = hand.get(0).getFaceValue();
+        for (Card card : hand) {
+            if (card.getFaceValue() != previousValue) {
+                return false; // like a filter, if the card is not the same as the playerID, return false, this will break the loop
+            }
+            previousValue = card.getFaceValue();
+        }
+        return true;
+    }
 
 
     public boolean checkWin() {
