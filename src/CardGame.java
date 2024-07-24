@@ -1,5 +1,6 @@
 import java.io.*;
 import java.util.*;
+import java.util.concurrent.CountDownLatch;
 
 public class CardGame {
     private final int numberOfPlayers;
@@ -8,13 +9,15 @@ public class CardGame {
     private final List<Thread> playerThreads = new LinkedList<>();
     private boolean gameWon = false;
     private int winnerID;
+    private final CountDownLatch latch;
 
     public CardGame(int numberOfPlayers) {
         this.numberOfPlayers = numberOfPlayers;
         this.playerArrayList = new LinkedList<>();
         this.cardDeckArrayList = new LinkedList<>();
+        this.latch = new CountDownLatch(numberOfPlayers);
         for (int i = 0; i < numberOfPlayers; i++) {
-            playerArrayList.add(new Player(i + 1, this));
+            playerArrayList.add(new Player(i + 1, this, latch));
             cardDeckArrayList.add(new CardDeck(i + 1));
         }
     }
@@ -57,9 +60,8 @@ public class CardGame {
     public synchronized void setGameWon(int playerID) { // being called in if(checkWin()) in Player.java
         this.gameWon = true;
         this.winnerID = playerID;
-        System.out.println("---------------------\nPrint winner and other players message to txt file.\nStop the game.");
-
         notifyAll(); // Notify all waiting threads that the game has been won
+        stopGame();
     }
 
     private void deletePreviousFiles() {
@@ -69,23 +71,53 @@ public class CardGame {
                 file.delete();
             }
         }
+        for(int i = 1; i <= 100; i++){
+            File file = new File("Deck" + i + ".txt");
+            if (file.exists()) {
+                file.delete();
+            }
+        }
     }
 
     private void startGame() {
-        System.out.println("-------------------------------\nStart the game!");
+        System.out.println("-------------------------------\nStarting the game!");
         deletePreviousFiles();
         for (Player player : playerArrayList) {
             Thread playerThread = new Thread(player);
             playerThreads.add(playerThread);
             playerThread.start();
         }
+        try {
+            latch.await();
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
+
+        // Write deck contents to files
+        writeDeckContentsToFile();
     }
 
     public void stopGame() {
-        System.out.println("Stop the game, interrupt all threads");
         for (Thread playerThread : playerThreads) {
             playerThread.interrupt();
         }
+    }
+
+    private void writeDeckContentsToFile() {
+        for (CardDeck deck : cardDeckArrayList) {
+            try {
+                BufferedWriter writer = new BufferedWriter(new FileWriter("Deck" + deck.getDeckID() + ".txt", false));
+                writer.write("Deck " + deck.getDeckID() + " contents: ");
+                for (Card card : deck.getCardDeck()) {
+                    writer.write(card.getFaceValue() + " ");
+                }
+                writer.newLine();
+                writer.close();
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        }
+
     }
 
     public void distributeCards(ArrayList<Integer> faceValues) {

@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.concurrent.CountDownLatch;
 
 public class Player implements Runnable {
     private final int playerID;
@@ -11,14 +12,16 @@ public class Player implements Runnable {
     private final CardGame cardGame;
     private final int preferredDenomination;
     private PrintWriter writer;
+    private final CountDownLatch latch;
 //    private volatile boolean done = false; //The volatile keyword in Java is used to indicate that a variable's value will be modified by different threads.
     private boolean firstTime;
-    public Player(int playerID, CardGame cardGame) {
+    public Player(int playerID, CardGame cardGame,CountDownLatch latch) {
         this.playerID = playerID;
         this.preferredDenomination = playerID;
         this.cardGame = cardGame;
         this.hand = new LinkedList<>();
         this.firstTime = true;
+        this.latch = latch;
 
         try {
             writer = new PrintWriter(new BufferedWriter(new FileWriter("player" + playerID + ".txt", false)));
@@ -111,6 +114,7 @@ public class Player implements Runnable {
             Thread.currentThread().interrupt(); // Restore interrupted status
         } finally {
             writer.close();
+            latch.countDown(); // Decrement the latch count
         }
 
     }
