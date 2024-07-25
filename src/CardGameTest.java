@@ -3,8 +3,7 @@ import org.junit.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-import java.io.ByteArrayInputStream;
-import java.io.InputStream;
+import java.io.*;
 import java.util.ArrayList;
 import java.util.concurrent.CountDownLatch;
 
@@ -23,7 +22,7 @@ public class CardGameTest {
     private int numberOfPlayers;
     @Before
     public void setUp() {
-        numberOfPlayers = 4;
+        numberOfPlayers = 2;
         cardGame = new CardGame(numberOfPlayers);
     }
     @Test
@@ -98,4 +97,74 @@ public class CardGameTest {
 
         assertTrue(player.checkWin(), "Player should win with four cards of the same value");
     }
+    @Test
+    public void testPlayerRun() throws InterruptedException {
+        CardGame cardGame = new CardGame(2);
+        Player player1 = cardGame.getPlayerArrayList()[0];
+        Player player2 = cardGame.getPlayerArrayList()[1];
+
+        Thread playerThread1 = new Thread(player1);
+        Thread playerThread2 = new Thread(player2);
+
+        // Give player1 a winning hand immediately
+        player1.addHand(new Card(1));
+        player1.addHand(new Card(1));
+        player1.addHand(new Card(1));
+        player1.addHand(new Card(1));
+
+        // Give player2 a non-winning hand immediately
+        player2.addHand(new Card(2));
+        player2.addHand(new Card(1));
+        player2.addHand(new Card(2));
+        player2.addHand(new Card(1));
+
+        playerThread1.start();
+        playerThread2.start();
+
+
+
+        // Allow some time for threads to run
+        Thread.sleep(2000);
+
+        assertTrue(cardGame.isGameWon(), "Game should be marked as won");
+        assertEquals(1, cardGame.getWinnerID(), "Player 1 should be the winner");
+
+        // Ensure player2 thread is stopped
+        assertFalse(playerThread2.isAlive(), "Player 2 thread should be stopped");
+    }
+    @Test
+    public void testWriteDeckContentsToFile() throws InterruptedException {
+        CardGame cardGame = new CardGame(2);
+        CardDeck deck1 = cardGame.getCardDeckArrayList()[0];
+        CardDeck deck2 = cardGame.getCardDeckArrayList()[1];
+
+
+        deck1.discardCard(new Card(1));
+        deck1.discardCard(new Card(1));
+        deck1.discardCard(new Card(1));
+        deck1.discardCard(new Card(1));
+
+        deck2.discardCard(new Card(2));
+        deck2.discardCard(new Card(2));
+        deck2.discardCard(new Card(2));
+        deck2.discardCard(new Card(2));
+
+
+        cardGame.writeDeckContentsToFile();
+
+        for (int i = 1; i <= numberOfPlayers; i++) {
+            File file = new File("Deck" + i + ".txt");
+            assertTrue(file.exists(), "Deck file should be created: Deck" + i + ".txt");
+
+            try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
+                String line = reader.readLine();
+                assertNotNull(line, "Deck file should not be empty");
+                assertTrue(line.startsWith("Deck " + i + " contents: "), "Deck file should contain the correct contents");
+            } catch (IOException e) {
+                e.printStackTrace();
+                fail("Exception while reading deck file: " + e.getMessage());
+            }
+        }
+    }
+
 }

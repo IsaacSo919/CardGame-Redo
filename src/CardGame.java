@@ -79,7 +79,7 @@ public class CardGame {
         }
     }
 
-    private void startGame() {
+    public void startGame() {
         System.out.println("-------------------------------\nStarting the game!");
         deletePreviousFiles();
         for (Player player : playerArrayList) {
@@ -103,7 +103,7 @@ public class CardGame {
         }
     }
 
-    private void writeDeckContentsToFile() {
+    public void writeDeckContentsToFile() {
         for (CardDeck deck : cardDeckArrayList) {
             try {
                 BufferedWriter writer = new BufferedWriter(new FileWriter("Deck" + deck.getDeckID() + ".txt", false));
