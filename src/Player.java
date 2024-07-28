@@ -40,7 +40,6 @@ public class Player implements Runnable {
                     // Check for win condition when the game starts,maybe the player already has 4 cards of the same face value
                     System.out.println("Player " + playerID + " wins");
                     System.out.println("player " + playerID + " final hand: " + this.printHand());
-
                     synchronized(cardGame){
                         cardGame.setGameWon(this.playerID);// Set the gameWon flag to true
                     }
@@ -49,20 +48,21 @@ public class Player implements Runnable {
             }
 
             while (!Thread.currentThread().isInterrupted()) {
-                synchronized (cardGame) {// synchronized block ensures that only one thread can execute at a time
-                    if (cardGame.isGameWon()) { //returns true if the game is won,right after the pogram notifies all the threads that the game is won
-                        if(cardGame.getWinnerID()==this.playerID){
+                synchronized (cardGame) {
+//                    System.out.println("isGameWon:"+cardGame.isGameWon());
+                    if (cardGame.isGameWon()) {
+//                        System.out.println("Winner " + cardGame.getWinnerID());
+                        if (cardGame.getWinnerID() == this.playerID) {// if statement should not run keep it here in case of future changes
                             writer.println("Player " + playerID + " wins");
                             writer.println("Player " + playerID + " exits");
                             writer.println("player " + playerID + " final hand: " + this.printHand());
-                        }else{
-                            writer.println("player " + cardGame.getWinnerID()+ " has informed player " + this.playerID + " that player " + cardGame.getWinnerID() + " has won\n" +
-                                    "player " + this.playerID+ " exits\n" +
+                        } else {
+                            writer.println("player " + cardGame.getWinnerID() + " has informed player " + this.playerID + " that player " + cardGame.getWinnerID() + " has won\n" +
+                                    "player " + this.playerID + " exits\n" +
                                     "player " + this.playerID + " hand: " + this.printHand());
                         }
                         writer.flush();
                         Thread.currentThread().interrupt();
-//                        System.out.println("PlayerThread " + playerID + " is interrupted");
                         break;
                     }
                 }
@@ -78,7 +78,7 @@ public class Player implements Runnable {
 
                 // Discard a non-preferred card to the next deck
                 Card cardToDiscard = null;
-                for (Card card : hand) { //
+                for (Card card : hand) {
                     if (card.getFaceValue() != preferredDenomination) {
                         cardToDiscard = card;
                         break;
@@ -87,31 +87,31 @@ public class Player implements Runnable {
                 if (cardToDiscard != null) {
                     hand.remove(cardToDiscard);
                     nextDeck.discardCard(cardToDiscard);
-                    writer.println("Player " + playerID + "  discards a " + cardToDiscard.getFaceValue() + " to deck " + nextDeck.getDeckID());
+                    writer.println("Player " + playerID + " discards a " + cardToDiscard.getFaceValue() + " to deck " + nextDeck.getDeckID());
                 } else {
-                    // If no non-preferred card is found, discard any card
-                    cardToDiscard = hand.remove(0);// remove the first card
+                    cardToDiscard = hand.remove(0);
                     nextDeck.discardCard(cardToDiscard);
                     writer.println("Player " + playerID + " discards a " + cardToDiscard.getFaceValue() + " to deck " + nextDeck.getDeckID());
                 }
                 writer.println("Player " + playerID + " current hand is " + this.printHand());
-                if (checkWin()) { // Check for win condition and perform necessary actions if true
-                    // Print the player's hand
+                if (checkWin()) {
                     System.out.println("Player " + playerID + " wins");
                     System.out.println("player " + playerID + " final hand: " + this.printHand());
-
-                    synchronized(cardGame){
+                    writer.println("Player " + playerID + " wins");
+                    writer.println("Player " + playerID + " exits");
+                    writer.println("player " + playerID + " final hand: " + this.printHand());
+                    writer.flush();
+                    synchronized (cardGame) {
                         cardGame.setGameWon(this.playerID);
                     }
-                     // Set the gameWon flag to true
-                    //break;// im an idiot, if i break here the thread will end, so only the winner will not run anymore
+                    break;
                 }
 
                 writer.flush();
                 Thread.sleep(1000); // Simulate time taken to play
             }
         } catch (InterruptedException e) {
-            Thread.currentThread().interrupt(); // Restore interrupted status
+            Thread.currentThread().interrupt();
         } finally {
             writer.close();
             latch.countDown(); // Decrement the latch count
@@ -120,12 +120,12 @@ public class Player implements Runnable {
     }
 
     private boolean checkInitialWin() {
+        if (hand.size() < 4) return false; // Ensure there are enough cards to check
         int previousValue = hand.get(0).getFaceValue();
         for (Card card : hand) {
             if (card.getFaceValue() != previousValue) {
-                return false; // like a filter, if the card is not the same as the playerID, return false, this will break the loop
+                return false;
             }
-            previousValue = card.getFaceValue();
         }
         return true;
     }

@@ -113,10 +113,10 @@ public class CardGameTest {
         player1.addHand(new Card(1));
 
         // Give player2 a non-winning hand immediately
-        player2.addHand(new Card(2));
-        player2.addHand(new Card(1));
-        player2.addHand(new Card(2));
-        player2.addHand(new Card(1));
+        player2.addHand(new Card(3));
+        player2.addHand(new Card(3));
+        player2.addHand(new Card(3));
+        player2.addHand(new Card(3));
 
         playerThread1.start();
         playerThread2.start();

@@ -61,7 +61,6 @@ public class CardGame {
         this.gameWon = true;
         this.winnerID = playerID;
         notifyAll(); // Notify all waiting threads that the game has been won
-        stopGame();
     }
 
     private void deletePreviousFiles() {
